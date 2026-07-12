@@ -36,3 +36,13 @@ def get_summary(db: Session):
     by_category = {category: amount for category, amount in rows}
 
     return {"total": total, "by_category": by_category}
+
+def update_expense(db: Session, expense_id: int, expense: schemas.ExpenseCreate) -> models.Expense | None:
+    db_expense = db.query(models.Expense).filter(models.Expense.id == expense_id).first()
+    if db_expense is None:
+        return None
+    for key, value in expense.model_dump().items():
+        setattr(db_expense, key, value)
+    db.commit()
+    db.refresh(db_expense)
+    return db_expense
