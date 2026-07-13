@@ -48,3 +48,19 @@ def test_summary(client):
     data = response.json()
     assert data["total"] == 40
     assert data["by_category"] == {"comida": 10, "ocio": 30}
+
+def test_update_existing_expense(client):
+    created = client.post("/expenses", json={"amount": 10, "category": "comida", "date": "2026-01-01"})
+    expense_id = created.json()["id"]
+    response = client.put(f"/expenses/{expense_id}", json={"amount": 20, "category": "ocio", "date": "2026-01-01"})
+    assert response.status_code == 200
+    updated_expense = response.json()
+    assert updated_expense["amount"] == 20
+
+def test_update_missing_expense_returns_404(client):
+    response = client.put("/expenses/999", json={"amount": 20, "category": "comida", "date": "2026-01-01"})
+    assert response.status_code == 404
+
+def test_update_negative_amount_fails(client):
+    response = client.put("/expenses/1", json={"amount": -20, "category": "comida", "date": "2026-01-01"})
+    assert response.status_code == 422
