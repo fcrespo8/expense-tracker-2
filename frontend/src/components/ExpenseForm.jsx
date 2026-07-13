@@ -1,33 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Fecha de hoy en formato YYYY-MM-DD, para inicializar el input date.
 function today() {
   return new Date().toISOString().split("T")[0];
 }
 
-function ExpenseForm({ onAdd }) {
+function ExpenseForm({ onSave, editingExpense }) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(today());
 
   function handleSubmit() {
-    onAdd({
+    onSave({
       amount: parseFloat(amount),
       category,
       description,
       date,
     });
-    // Reset: importe, categoría y descripción se limpian; la fecha vuelve a hoy.
     setAmount("");
     setCategory("");
     setDescription("");
     setDate(today());
   }
 
+  useEffect(() => {
+    if (editingExpense) {
+      setAmount(editingExpense.amount);
+      setCategory(editingExpense.category);
+      setDescription(editingExpense.description || "");
+      setDate(editingExpense.date);
+    }
+    else {
+      setAmount("");
+      setCategory("");
+      setDescription("");
+      setDate(today());
+    }
+  }, [editingExpense]);
+
   return (
     <div>
-      <h2>Nuevo gasto</h2>
+      <h2>{editingExpense ? "Editar gasto" : "Nuevo gasto"}</h2>
       <input
         type="number"
         placeholder="Importe"
@@ -51,7 +65,7 @@ function ExpenseForm({ onAdd }) {
         value={date}
         onChange={(e) => setDate(e.target.value)}
       />
-      <button onClick={handleSubmit}>Agregar</button>
+      <button onClick={handleSubmit}>{editingExpense ? "Guardar" : "Agregar"}</button>
     </div>
   );
 }

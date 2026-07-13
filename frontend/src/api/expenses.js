@@ -29,3 +29,11 @@ export function createExpense(expense) {
 export function deleteExpense(id) {
   return request(`/expenses/${id}`, { method: "DELETE" });
 }
+
+export function updateExpense(id, expense) {
+  return request(`/expenses/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(expense),
+  });
+}

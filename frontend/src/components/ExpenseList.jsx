@@ -1,4 +1,4 @@
-function ExpenseList({ expenses, onDelete }) {
+function ExpenseList({ expenses, onDelete, onEdit }) {
   if (expenses.length === 0) {
     return <p>No hay gastos todavía.</p>;
   }
@@ -11,6 +11,7 @@ function ExpenseList({ expenses, onDelete }) {
           <li key={expense.id}>
             {expense.date} — {expense.category} — {expense.amount}€
             {expense.description && ` (${expense.description})`}
+            <button onClick={() => onEdit(expense)}>Editar</button>
             <button onClick={() => onDelete(expense.id)}>Borrar</button>
           </li>
         ))}
