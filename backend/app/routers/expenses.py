@@ -1,3 +1,4 @@
+from datetime import date
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
@@ -13,8 +14,14 @@ def create_expense(expense: schemas.ExpenseCreate, db: Session = Depends(get_db)
 
 
 @router.get("", response_model=list[schemas.ExpenseOut])
-def list_expenses(db: Session = Depends(get_db)):
+def list_expenses(
+    category: str | None = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    db: Session = Depends(get_db),
+):
     return crud.get_expenses(db)
+
 
 @router.get("/summary", response_model=schemas.Summary)
 def get_summary(db: Session = Depends(get_db)):
