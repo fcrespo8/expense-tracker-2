@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app import models, schemas
 from sqlalchemy import func
-
+from datetime import date
 
 def create_expense(db: Session, expense: schemas.ExpenseCreate) -> models.Expense:
     db_expense = models.Expense(**expense.model_dump())
@@ -11,8 +11,17 @@ def create_expense(db: Session, expense: schemas.ExpenseCreate) -> models.Expens
     return db_expense
 
 
-def get_expenses(db: Session) -> list[models.Expense]:
-    return db.query(models.Expense).all()
+def get_expenses(db: Session, category: str | None = None, date_from: date | None = None, date_to: date | None = None) -> list[models.Expense]:
+    query = db.query(models.Expense)
+
+    if category is not None:
+        query = query.filter(models.Expense.category == category)
+    if date_from is not None:
+        query = query.filter(models.Expense.date >= date_from)
+    if date_to is not None:
+        query = query.filter(models.Expense.date <= date_to)
+
+    return query.all()
 
 def delete_expense(db: Session, expense_id: int) -> bool:
     db_expense = db.query(models.Expense).filter(models.Expense.id == expense_id).first()

@@ -20,8 +20,7 @@ def list_expenses(
     date_to: date | None = None,
     db: Session = Depends(get_db),
 ):
-    return crud.get_expenses(db)
-
+    return crud.get_expenses(db, category=category, date_from=date_from, date_to=date_to)
 
 @router.get("/summary", response_model=schemas.Summary)
 def get_summary(db: Session = Depends(get_db)):
