@@ -35,8 +35,6 @@ def delete_expense(db: Session, expense_id: int) -> bool:
     return True
 
 def get_summary(db: Session):
-    total = db.query(func.sum(models.Expense.amount)).scalar() or 0.0
-
     rows = (
         db.query(
             models.Expense.category,
@@ -46,7 +44,7 @@ def get_summary(db: Session):
         .all()
     )
     by_category = {category: amount for category, amount in rows}
-
+    total = sum(by_category.values())
     return {"total": total, "by_category": by_category}
 
 def update_expense(db: Session, expense_id: int, expense: schemas.ExpenseCreate) -> models.Expense | None:
