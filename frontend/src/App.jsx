@@ -9,15 +9,15 @@ function App() {
   const [summary, setSummary] = useState({ total: 0, by_category: {} });
   const [error, setError] = useState(null);
   const [editingExpense, setEditingExpense] = useState(null);
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterDateFrom, setFilterDateFrom] = useState("");
+  const [filterDateTo, setFilterDateTo] = useState("");
+  const [skip, setSkip] = useState(0);
+  const LIMIT = 10;
 
-  // Carga lista + resumen desde el backend. Fuente única de verdad.
   async function loadData() {
     try {
-      const [expensesData, summaryData] = await Promise.all([
-        getExpenses(),
-        getSummary(),
-      ]);
-      setExpenses(expensesData);
+      const summaryData = await getSummary();
       setSummary(summaryData);
       setError(null);
     } catch {
@@ -30,6 +30,33 @@ function App() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    loadFilteredExpenses();
+  }, [filterCategory, filterDateFrom, filterDateTo]);
+
+  async function loadFilteredExpenses() {
+    const data = await getExpenses({
+      category: filterCategory,
+      date_from: filterDateFrom,
+      date_to: filterDateTo,
+      skip: 0,
+    });
+    setExpenses(data);       // REEMPLAZA
+    setSkip(0);              // resetea la paginación
+  }
+
+  async function handleLoadMore() {
+    const nextSkip = skip + LIMIT;
+    const data = await getExpenses({
+      category: filterCategory,
+      date_from: filterDateFrom,
+      date_to: filterDateTo,
+      skip: nextSkip,
+    });
+    setExpenses([...expenses, ...data]);   // AGREGA
+    setSkip(nextSkip);
+  }
+
   async function handleSave(expense) {
     try {
       if (editingExpense) {
@@ -38,6 +65,7 @@ function App() {
         await createExpense(expense);
       }
       await loadData();
+      await loadFilteredExpenses();
       setEditingExpense(null);
     } catch (err) {
       setError(err.message);
@@ -48,6 +76,7 @@ function App() {
     try {
       await deleteExpense(id);
       await loadData();
+      await loadFilteredExpenses();
     } catch (err) {
       setError(err.message);
     }

@@ -14,8 +14,14 @@ async function request(path, options) {
   return res.status === 204 ? null : res.json();
 }
 
-export function getExpenses() {
-  return request("/expenses");
+export function getExpenses({ category, date_from, date_to, skip, limit }) {
+  const params = new URLSearchParams();
+  if (category) params.append("category", category);
+  if (date_from) params.append("date_from", date_from);
+  if (date_to) params.append("date_to", date_to);
+  if (skip) params.append("skip", skip);
+  if (limit) params.append("limit", limit);
+  return request(`/expenses?${params.toString()}`);
 }
 
 export function getSummary() {
