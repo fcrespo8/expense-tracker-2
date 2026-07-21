@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sympy import limit
 from app import models, schemas
 from sqlalchemy import func
 from datetime import date
@@ -11,7 +12,7 @@ def create_expense(db: Session, expense: schemas.ExpenseCreate) -> models.Expens
     return db_expense
 
 
-def get_expenses(db: Session, category: str | None = None, date_from: date | None = None, date_to: date | None = None) -> list[models.Expense]:
+def get_expenses(db: Session, category: str | None = None, date_from: date | None = None, date_to: date | None = None, skip: int = 0, limit: int = 10) -> list[models.Expense]:
     query = db.query(models.Expense)
 
     if category is not None:
@@ -20,6 +21,8 @@ def get_expenses(db: Session, category: str | None = None, date_from: date | Non
         query = query.filter(models.Expense.date >= date_from)
     if date_to is not None:
         query = query.filter(models.Expense.date <= date_to)
+
+    query = query.offset(skip).limit(limit)
 
     return query.all()
 
