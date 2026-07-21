@@ -4,7 +4,11 @@ const API_URL = "http://localhost:8000";
 async function request(path, options) {
   const res = await fetch(`${API_URL}${path}`, options);
   if (!res.ok) {
-    throw new Error(`Error ${res.status}`);
+    const errorBody = await res.json();
+    const message = Array.isArray(errorBody.detail)
+      ? errorBody.detail[0].msg
+      : errorBody.detail;
+    throw new Error(message);
   }
   // 204 (delete) no trae body; el resto sí.
   return res.status === 204 ? null : res.json();

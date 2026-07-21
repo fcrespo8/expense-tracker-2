@@ -39,22 +39,22 @@ function App() {
       }
       await loadData();
       setEditingExpense(null);
-    } catch {
-      setError("No se pudo guardar el gasto. Revisá los datos.");
+    } catch (err) {
+      setError(err.message);
     }
-  }
-
-  function handleEdit(expense) {
-    setEditingExpense(expense);
   }
 
   async function handleDelete(id) {
     try {
       await deleteExpense(id);
-      await loadData(); // refetch tras borrar.
-    } catch {
-      setError("No se pudo borrar el gasto.");
+      await loadData();
+    } catch (err) {
+      setError(err.message);
     }
+  }
+
+  function handleEdit(expense) {
+    setEditingExpense(expense);
   }
 
   return (
