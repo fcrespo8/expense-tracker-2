@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # Lo que el cliente ENVÍA al crear un gasto.
@@ -8,6 +8,13 @@ class ExpenseCreate(BaseModel):
     category: str = Field(min_length=1)  # no vacío
     description: str | None = None       # opcional
     date: date
+
+    @field_validator("date")
+    @classmethod
+    def validate_date(cls, value: date) -> date:
+        if value > date.today():
+            raise ValueError("La fecha no puede ser futura")
+        return value
 
 # Lo que la API DEVUELVE. Incluye el id que genera la BD.
 class ExpenseOut(ExpenseCreate):

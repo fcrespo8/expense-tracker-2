@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 def test_create_valid_expense(client):
     response = client.post("/expenses", json={
         "amount": 10.5, "category": "comida", "date": "2026-01-01"
@@ -63,4 +65,11 @@ def test_update_missing_expense_returns_404(client):
 
 def test_update_negative_amount_fails(client):
     response = client.put("/expenses/1", json={"amount": -20, "category": "comida", "date": "2026-01-01"})
+    assert response.status_code == 422
+
+def test_create_future_date_fails(client):
+    tomorrow = date.today() + timedelta(days=1)
+    response = client.post("/expenses", json={
+        "amount": 10, "category": "comida", "date": str(tomorrow)
+    })
     assert response.status_code == 422
